@@ -7,3 +7,11 @@ async def get_main_menu():
     keyboard = ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)
 
     return keyboard
+
+
+async def get_cancel_menu():
+    kb = [[KeyboardButton(text="❌ Cancel")]]
+
+    keyboard = ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)
+
+    return keyboard
