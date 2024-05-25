@@ -1,5 +1,4 @@
 import aiosqlite
-import asyncio
 
 
 class Database:
@@ -25,9 +24,10 @@ class Database:
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY,
                 user_id INTEGER NOT NULL,
-                city TEXT NOT NULL
+                city TEXT NOT NULL,
+                is_ban TEXT NOT NULL
             )
-        """
+            """
         )
         await self.connection.commit()
 
@@ -35,7 +35,8 @@ class Database:
         if self.cursor is None:
             raise Exception("Database not initialized. Call 'init' method first.")
         await self.cursor.execute(
-            "INSERT INTO users (user_id, city) VALUES (?, ?)", (user_id, city)
+            "INSERT INTO users (user_id, city, is_ban) VALUES (?, ?, ?)",
+            (user_id, city, "no"),
         )
         await self.connection.commit()
 
@@ -45,8 +46,42 @@ class Database:
         await self.cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
         user = await self.cursor.fetchone()
         if user:
-            return {"id": user[0], "user_id": user[1], "city": user[2]}
+            return {
+                "id": user[0],
+                "user_id": user[1],
+                "city": user[2],
+                "is_ban": user[3],
+            }
         return None
+
+    async def delete_user(self, user_id):
+        if self.cursor is None:
+            raise Exception("Database not initialized. Call 'init' method first.")
+        await self.cursor.execute("DELETE FROM users WHERE user_id = ?", (user_id,))
+        await self.connection.commit()
+
+    async def ban_user(self, user_id):
+        if self.cursor is None:
+            raise Exception("Database not initialized. Call 'init' method first.")
+        await self.cursor.execute(
+            "UPDATE users SET is_ban = 'yes' WHERE user_id = ?", (user_id,)
+        )
+        await self.connection.commit()
+
+    async def unban_user(self, user_id):
+        if self.cursor is None:
+            raise Exception("Database not initialized. Call 'init' method first.")
+        await self.cursor.execute(
+            "UPDATE users SET is_ban = 'no' WHERE user_id = ?", (user_id,)
+        )
+        await self.connection.commit()
+
+    async def get_all_user_ids(self):
+        if self.cursor is None:
+            raise Exception("Database not initialized. Call 'init' method first.")
+        await self.cursor.execute("SELECT user_id FROM users")
+        rows = await self.cursor.fetchall()
+        return [row[0] for row in rows]
 
     async def close(self):
         if self.connection:

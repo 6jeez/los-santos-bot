@@ -9,6 +9,7 @@ from states.add_city import AddCity
 from main import db
 from middlewares.throt import throttled
 from middlewares.throt import ThrottlingMiddleware
+from config import ADMIN_ID
 
 router = Router()
 router.message.middleware(ThrottlingMiddleware())
@@ -21,7 +22,11 @@ router.message.middleware(ThrottlingMiddleware())
 )
 async def start_func(msg: Message, bot: Bot, state: FSMContext) -> Any:
     user_id = msg.from_user.id
+    admin = True if user_id in ADMIN_ID else None
     user = await db.get_user(user_id=user_id)
+
+    if user.get("is_ban") == "yes":
+        return
 
     await bot.delete_message(chat_id=user_id, message_id=msg.message_id)
 
@@ -38,5 +43,5 @@ async def start_func(msg: Message, bot: Bot, state: FSMContext) -> Any:
     await msg.answer(
         text=f"😘 Hi, <b>{msg.from_user.full_name}</b>.\n🤞 Use menu below",
         parse_mode="HTML",
-        reply_markup=await get_main_menu(),
+        reply_markup=await get_main_menu(admin),
     )

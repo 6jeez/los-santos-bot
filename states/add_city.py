@@ -8,6 +8,7 @@ from aiogram.fsm.state import StatesGroup, State
 
 from main import db, weather_service
 from keyboards.user import get_main_menu
+from config import ADMIN_ID
 
 
 router = Router()
@@ -21,6 +22,7 @@ class AddCity(StatesGroup):
 async def get_city_name(msg: Message, bot: Bot, state: FSMContext) -> Any:
     user_id = msg.from_user.id
     data = await state.get_data()
+    admin = True if user_id in ADMIN_ID else None
 
     is_city_exist = await weather_service.city_exists(city_name=msg.text)
 
@@ -37,7 +39,7 @@ async def get_city_name(msg: Message, bot: Bot, state: FSMContext) -> Any:
     await bot.delete_message(chat_id=user_id, message_id=data.get("start_msg"))
     await msg.answer(
         text=f"✔ <b>You successfully added {msg.text} city!</b>\n\n😊Use menu below",
-        reply_markup=await get_main_menu(),
+        reply_markup=await get_main_menu(admin),
         parse_mode="HTML",
     )
 

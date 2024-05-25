@@ -20,6 +20,10 @@ async def get_user_weather(msg: Message, bot: Bot) -> Any:
 
     user_id = msg.from_user.id
 
+    user = await db.get_user(user_id=user_id)
+    if user.get("is_ban") == "yes":
+        return
+
     user_data = await db.get_user(user_id=user_id)
     user_city = user_data.get("city")
 
