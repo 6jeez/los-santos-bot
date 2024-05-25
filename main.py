@@ -3,10 +3,20 @@ from aiogram import Bot, Dispatcher
 
 from database.database_funcs import Database
 from config import TOKEN, DB_PATH, WEATHER_API_KEY
-from handlers import user_commands, get_weather, donate, cancel, ban, back, unban_user
+from handlers import (
+    user_commands,
+    get_weather,
+    donate,
+    cancel,
+    ban,
+    back,
+    unban_user,
+    newsletter,
+)
 from callbacks import check_donate
 from states import add_city, donate_state, ban_user
 from services.weather_service import WeatherService
+from utils.folders import init_folders
 
 
 db = Database(db_name=DB_PATH)
@@ -15,6 +25,7 @@ weather_service = WeatherService(api_key=WEATHER_API_KEY)
 
 async def main():
     await db.init()
+    init_folders()
 
     bot = Bot(TOKEN)
     dp = Dispatcher()
@@ -31,6 +42,7 @@ async def main():
         ban.router,
         ban_user.router,
         unban_user.router,
+        newsletter.router,
     )
 
     await bot.delete_webhook(drop_pending_updates=True)

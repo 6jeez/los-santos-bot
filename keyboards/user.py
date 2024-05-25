@@ -35,3 +35,15 @@ async def get_ban_menu() -> Any:
     keyboard = ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)
 
     return keyboard
+
+
+async def get_media_menu() -> Any:
+    kb = [
+        [KeyboardButton(text="audio"), KeyboardButton(text="image")],
+        [KeyboardButton(text="video"), KeyboardButton(text="document")],
+        [KeyboardButton(text="nothing"), KeyboardButton(text="❌ Cancel")],
+    ]
+
+    keyboard = ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)
+
+    return keyboard
